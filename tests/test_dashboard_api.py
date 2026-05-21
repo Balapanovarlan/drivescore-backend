@@ -74,7 +74,7 @@ async def seeded(db_session):
 
 
 async def test_dashboard_summary(client, seeded):
-    login = await client.post("/auth/login", json={"email": "d@d.d", "password": "p"})
+    login = await client.post("/auth/register", json={"email": "d@d.d", "password": "testpass1234"})
     token = login.json()["token"]
     resp = await client.get("/dashboard/summary", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200

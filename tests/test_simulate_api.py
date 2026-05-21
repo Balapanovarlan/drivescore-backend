@@ -18,7 +18,7 @@ async def with_articles(db_session):
 
 
 async def test_simulate_returns_score_and_premium(client, with_articles):
-    login = await client.post("/auth/login", json={"email": "s@s.s", "password": "p"})
+    login = await client.post("/auth/register", json={"email": "s@s.s", "password": "testpass1234"})
     token = login.json()["token"]
     resp = await client.post(
         "/score/simulate",
@@ -38,7 +38,7 @@ async def test_simulate_returns_score_and_premium(client, with_articles):
 
 
 async def test_simulate_unknown_article_returns_422(client, with_articles):
-    login = await client.post("/auth/login", json={"email": "s2@s.s", "password": "p"})
+    login = await client.post("/auth/register", json={"email": "s2@s.s", "password": "testpass1234"})
     token = login.json()["token"]
     resp = await client.post(
         "/score/simulate",

@@ -30,7 +30,7 @@ async def seeded(db_session):
 
 
 async def test_import_csv_writes_violations_and_recomputes(client, seeded):
-    login = await client.post("/auth/login", json={"email": "i@i.i", "password": "p"})
+    login = await client.post("/auth/register", json={"email": "i@i.i", "password": "testpass1234"})
     token = login.json()["token"]
     csv = (
         "license_number,koap_article,occurred_at,fine_kzt,at_fault\n"
@@ -50,7 +50,7 @@ async def test_import_csv_writes_violations_and_recomputes(client, seeded):
 
 
 async def test_import_csv_unknown_license_returns_error_row(client, seeded):
-    login = await client.post("/auth/login", json={"email": "i2@i.i", "password": "p"})
+    login = await client.post("/auth/register", json={"email": "i2@i.i", "password": "testpass1234"})
     token = login.json()["token"]
     csv = (
         "license_number,koap_article,occurred_at,fine_kzt,at_fault\n"

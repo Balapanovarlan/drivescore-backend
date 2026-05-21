@@ -22,6 +22,11 @@ class Settings(BaseSettings):
     seed_test_user_email: str = "info@adam.ua"
     seed_test_user_password: str = "demo"
 
+    # Brute-force protection (per email)
+    login_max_attempts: int = 5
+    login_window_seconds: int = 900
+    login_lockout_seconds: int = 900
+
     @field_validator("cors_origins", mode="before")
     @classmethod
     def split_csv(cls, v: list[str] | str) -> list[str]:

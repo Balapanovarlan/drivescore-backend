@@ -51,7 +51,7 @@ async def test_get_koap_articles(client, seeded):
 
 async def test_list_drivers_returns_scored_items(client, seeded):
     # Auth required → quick login
-    login = await client.post("/auth/login", json={"email": "x@x.x", "password": "p"})
+    login = await client.post("/auth/register", json={"email": "x@x.x", "password": "testpass1234"})
     token = login.json()["token"]
     resp = await client.get("/drivers", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200
@@ -65,7 +65,7 @@ async def test_list_drivers_returns_scored_items(client, seeded):
 
 
 async def test_get_driver_detail(client, seeded):
-    login = await client.post("/auth/login", json={"email": "x@x.x", "password": "p"})
+    login = await client.post("/auth/register", json={"email": "x@x.x", "password": "testpass1234"})
     token = login.json()["token"]
     resp = await client.get("/drivers/DR-00001", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200
@@ -77,7 +77,7 @@ async def test_get_driver_detail(client, seeded):
 
 
 async def test_get_driver_404(client, seeded):
-    login = await client.post("/auth/login", json={"email": "x@x.x", "password": "p"})
+    login = await client.post("/auth/register", json={"email": "x@x.x", "password": "testpass1234"})
     token = login.json()["token"]
     resp = await client.get("/drivers/UNKNOWN", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 404

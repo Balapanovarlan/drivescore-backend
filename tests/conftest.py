@@ -16,6 +16,15 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
 from app.database import Base, get_db
+from app.security import login_throttler
+
+
+@pytest.fixture(autouse=True)
+def _reset_throttler():
+    """Throttler is process-global; reset it between tests so lockouts don't leak."""
+    login_throttler.reset()
+    yield
+    login_throttler.reset()
 
 
 @pytest.fixture
@@ -50,11 +59,12 @@ async def client(db_session) -> AsyncIterator[AsyncClient]:
 
 @pytest.fixture
 async def auth_client(client: AsyncClient) -> AsyncIterator[AsyncClient]:
+    """Registers a fresh user and returns a client with that JWT attached."""
     resp = await client.post(
-        "/auth/login",
-        json={"email": "fixture@drivescore.test", "password": "x"},
+        "/auth/register",
+        json={"email": "fixture@drivescore.test", "password": "fixturepass"},
     )
-    assert resp.status_code == 200
+    assert resp.status_code == 201, resp.text
     token = resp.json()["token"]
     client.headers["Authorization"] = f"Bearer {token}"
     yield client
