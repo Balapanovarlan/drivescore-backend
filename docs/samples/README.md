@@ -8,15 +8,19 @@ resolve to real drivers in the DB.
 Driver licence numbers follow the modern Kazakhstani format: **9 digits**, e.g.
 `339670711`. The seed generates them deterministically from `seed_rng_seed=42`.
 
-A few seeded driver licenses you can also reference manually:
-| Driver name        | Licence    |
-| ------------------ | ---------- |
-| Aigul Nurlanov     | 339670711  |
-| Dana Nurlanov      | 642621108  |
-| Ruslan Akhmetov    | 790256940  |
-| Saltanat Zhumagulova | 777641645|
-| Aliya Iskakova     | 530613729  |
-| Aliya Nazarbayev   | 941889393  |
+A few seeded driver licences you can also reference manually:
+| Driver name           | Licence   | Used in            |
+| --------------------- | --------- | ------------------ |
+| Aigul Nurlanov        | 896233790 | 01_happy_comma     |
+| Ruslan Iskakova       | 134126396 | 01_happy_comma     |
+| Saltanat Bektenova    | 596348124 | 02_happy_semicolon |
+| Saltanat Kassymov     | 902099969 | 02_happy_semicolon |
+| Dana Zhumagulova      | 172370545 | 04_recurrence      |
+| Ruslan Yerlanqyzy     | 903132646 | 05_critical_dui    |
+| Nurlan Kassymov       | 273497327 | 06_excel_ru_with_bom |
+
+Refresh the database (`docker compose down -v && docker compose up -d`) if you change the
+seed or want a clean slate.
 
 ## File format
 
