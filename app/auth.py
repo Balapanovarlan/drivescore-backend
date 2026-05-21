@@ -61,3 +61,9 @@ async def get_current_user(
     if user is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "User not found")
     return user
+
+
+def require_admin(current: Annotated[User, Depends(get_current_user)]) -> User:
+    if current.role != "admin":
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Admin role required.")
+    return current

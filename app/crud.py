@@ -16,13 +16,22 @@ async def get_user_by_email(db: AsyncSession, email: str) -> User | None:
 
 
 async def create_user(
-    db: AsyncSession, email: str, password_hash: str, full_name: str | None
+    db: AsyncSession,
+    email: str,
+    password_hash: str,
+    full_name: str | None,
+    role: str = "manager",
 ) -> User:
-    user = User(email=email, password_hash=password_hash, full_name=full_name)
+    user = User(email=email, password_hash=password_hash, full_name=full_name, role=role)
     db.add(user)
     await db.commit()
     await db.refresh(user)
     return user
+
+
+async def list_users(db: AsyncSession) -> list[User]:
+    res = await db.execute(select(User).order_by(User.created_at))
+    return list(res.scalars().all())
 
 
 # --- KoAP catalogue ---

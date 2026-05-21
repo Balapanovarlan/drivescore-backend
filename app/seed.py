@@ -126,8 +126,9 @@ async def seed_if_empty(db: AsyncSession, drivers_count: int | None = None) -> N
         db.add(
             User(
                 email=settings.seed_test_user_email,
-                full_name="Test User",
+                full_name="Admin",
                 password_hash=hash_password(settings.seed_test_user_password),
+                role="admin",
             )
         )
         await db.commit()

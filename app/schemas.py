@@ -20,12 +20,20 @@ class UserOut(CamelModel):
     id: UUID
     email: EmailStr
     full_name: str | None = None
+    role: str = "manager"
 
 
 class RegisterIn(CamelModel):
     email: EmailStr
     password: str = Field(min_length=4)
     full_name: str | None = None
+
+
+class CreateUserIn(CamelModel):
+    email: EmailStr
+    password: str = Field(min_length=4)
+    full_name: str | None = None
+    role: str = "manager"  # admin can override to "admin"
 
 
 class LoginIn(CamelModel):

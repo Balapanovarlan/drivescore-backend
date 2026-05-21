@@ -10,6 +10,7 @@ from app.routers import (
     drivers_router,
     import_router,
     simulate_router,
+    users_router,
     violations_router,
 )
 
@@ -47,6 +48,7 @@ app.include_router(dashboard_router.router)
 app.include_router(drivers_router.router)
 app.include_router(import_router.router)
 app.include_router(simulate_router.router)
+app.include_router(users_router.router)
 app.include_router(violations_router.router)
 
 
