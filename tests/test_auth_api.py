@@ -121,3 +121,51 @@ async def test_me_returns_current_user(client):
     resp = await client.get("/auth/me", headers={"Authorization": f"Bearer {token}"})
     assert resp.status_code == 200
     assert resp.json()["email"] == "me@example.com"
+
+
+async def test_change_password_succeeds_with_correct_current(client):
+    reg = await client.post(
+        "/auth/register",
+        json={"email": "cp@example.com", "password": "oldpassword"},
+    )
+    token = reg.json()["token"]
+    resp = await client.post(
+        "/auth/change-password",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"currentPassword": "oldpassword", "newPassword": "newpassword"},
+    )
+    assert resp.status_code == 204
+    # Old password no longer works
+    login_old = await client.post(
+        "/auth/login",
+        json={"email": "cp@example.com", "password": "oldpassword"},
+    )
+    assert login_old.status_code == 401
+    # New password works
+    login_new = await client.post(
+        "/auth/login",
+        json={"email": "cp@example.com", "password": "newpassword"},
+    )
+    assert login_new.status_code == 200
+
+
+async def test_change_password_rejects_wrong_current(client):
+    reg = await client.post(
+        "/auth/register",
+        json={"email": "cp2@example.com", "password": "rightcurrent"},
+    )
+    token = reg.json()["token"]
+    resp = await client.post(
+        "/auth/change-password",
+        headers={"Authorization": f"Bearer {token}"},
+        json={"currentPassword": "wrongcurrent", "newPassword": "irrelevant"},
+    )
+    assert resp.status_code == 401
+
+
+async def test_change_password_requires_auth(client):
+    resp = await client.post(
+        "/auth/change-password",
+        json={"currentPassword": "x", "newPassword": "yyyy"},
+    )
+    assert resp.status_code == 401

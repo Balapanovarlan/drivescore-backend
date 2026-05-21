@@ -33,6 +33,11 @@ class LoginIn(CamelModel):
     password: str
 
 
+class ChangePasswordIn(CamelModel):
+    current_password: str
+    new_password: str = Field(min_length=4)
+
+
 class TokenOut(CamelModel):
     token: str
     user: UserOut
