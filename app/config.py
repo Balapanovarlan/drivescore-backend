@@ -1,0 +1,34 @@
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+
+    database_url: str = Field(...)
+    jwt_secret: str = Field(...)
+    jwt_algorithm: str = "HS256"
+    jwt_expires_days: int = 7
+    cors_origins: list[str] | str = Field(default_factory=list)
+
+    # Formula constants from формула.docx
+    base_premium_kzt: int = 200_000
+    alpha: float = 0.02
+    k_decay: float = 0.2
+
+    # Seed
+    seed_drivers: int = 100
+    seed_rng_seed: int = 42
+    seed_test_user_email: str = "info@adam.ua"
+    seed_test_user_password: str = "demo"
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def split_csv(cls, v: list[str] | str) -> list[str]:
+        if isinstance(v, str):
+            return [s.strip() for s in v.split(",") if s.strip()]
+        return v
+
+
+def get_settings() -> Settings:
+    return Settings()  # type: ignore[call-arg]
