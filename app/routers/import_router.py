@@ -19,7 +19,17 @@ router = APIRouter(prefix="/api/import", tags=["import"])
 
 
 def _to_bool(s: str) -> bool:
-    return s.strip().lower() in {"true", "1", "yes", "y"}
+    return s.strip().lower() in {"true", "1", "yes", "y", "да"}
+
+
+def _detect_delimiter(content: str) -> str:
+    """Return ',' or ';' based on the header line. Excel-RU/KZ exports often
+    use ';' because comma is the decimal separator in those locales."""
+    first_line = content.splitlines()[0] if content else ""
+    return ";" if first_line.count(";") > first_line.count(",") else ","
+
+
+REQUIRED_HEADERS = {"license_number", "koap_article", "occurred_at"}
 
 
 @router.post("/violations", response_model=ImportResultOut)
@@ -29,7 +39,17 @@ async def import_violations(
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
     content = (await file.read()).decode("utf-8-sig", errors="replace")
-    reader = csv.DictReader(io.StringIO(content))
+    delimiter = _detect_delimiter(content)
+    reader = csv.DictReader(io.StringIO(content), delimiter=delimiter)
+    if not reader.fieldnames or not REQUIRED_HEADERS.issubset(set(reader.fieldnames)):
+        from fastapi import HTTPException, status
+
+        missing = REQUIRED_HEADERS - set(reader.fieldnames or [])
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            f"CSV is missing required headers: {sorted(missing)}. "
+            f"Required: license_number, koap_article, occurred_at; optional: fine_kzt, at_fault.",
+        )
 
     errors: list[ImportErrorSchema] = []
     imported = 0

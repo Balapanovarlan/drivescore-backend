@@ -147,3 +147,54 @@ async def test_create_user_requires_auth(client):
         json={"email": "x@example.com", "password": "anything"},
     )
     assert resp.status_code == 401
+
+
+async def test_delete_user_requires_admin(client, manager_token):
+    resp = await client.delete(
+        "/users/00000000-0000-0000-0000-000000000000",
+        headers={"Authorization": f"Bearer {manager_token}"},
+    )
+    assert resp.status_code == 403
+
+
+async def test_delete_user_succeeds_for_admin(client, admin_token, db_session):
+    # First create a manager via API, then delete them
+    create = await client.post(
+        "/users",
+        headers={"Authorization": f"Bearer {admin_token}"},
+        json={"email": "victim@example.com", "password": "victimpw"},
+    )
+    assert create.status_code == 201
+    victim_id = create.json()["id"]
+    resp = await client.delete(
+        f"/users/{victim_id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert resp.status_code == 204
+    # Login as victim should now fail
+    login = await client.post(
+        "/auth/login",
+        json={"email": "victim@example.com", "password": "victimpw"},
+    )
+    assert login.status_code == 401
+
+
+async def test_delete_user_cannot_delete_self(client, admin_token, db_session):
+    me = await client.get(
+        "/auth/me", headers={"Authorization": f"Bearer {admin_token}"}
+    )
+    my_id = me.json()["id"]
+    resp = await client.delete(
+        f"/users/{my_id}",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert resp.status_code == 400
+    assert "your own" in resp.json()["detail"].lower()
+
+
+async def test_delete_user_unknown_id_returns_404(client, admin_token):
+    resp = await client.delete(
+        "/users/00000000-0000-0000-0000-000000000099",
+        headers={"Authorization": f"Bearer {admin_token}"},
+    )
+    assert resp.status_code == 404

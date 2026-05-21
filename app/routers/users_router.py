@@ -1,6 +1,8 @@
 from typing import Annotated
+from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import crud
@@ -45,3 +47,21 @@ async def create_user(
         role=payload.role,
     )
     return UserOut.model_validate(user)
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_user(
+    user_id: UUID,
+    current: Annotated[User, Depends(require_admin)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> None:
+    if user_id == current.id:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST, "You cannot delete your own account."
+        )
+    res = await db.execute(select(User).where(User.id == user_id))
+    target = res.scalar_one_or_none()
+    if target is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "User not found.")
+    await db.delete(target)
+    await db.commit()

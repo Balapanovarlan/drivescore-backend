@@ -145,7 +145,9 @@ async def seed_if_empty(db: AsyncSession, drivers_count: int | None = None) -> N
         driver = Driver(
             id=f"DR-{i:05d}",
             full_name=f"{first} {last}",
-            license_number=f"KZ-DR-{i:05d}",
+            # Real KZ driver-licence numbers issued since 2012 are 9 digits.
+            # Generated deterministically from rng (seed_rng_seed=42).
+            license_number=f"{rng.randint(100_000_000, 999_999_999):09d}",
             experience_years=rng.randint(1, 25),
             city=rng.choice(CITIES),
             mileage_km=rng.randint(5_000, 35_000),
