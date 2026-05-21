@@ -19,13 +19,15 @@ ALPHA = 0.02
 K_DECAY = 0.2
 BASE_PREMIUM_KZT = 200_000
 
-# (lo, hi inclusive, tier name, premium coefficient)
+# (upper-bound inclusive, tier name, premium coefficient).
+# Lookup picks the first tier whose upper bound >= score, so fractional
+# scores like 5.2 fall into "moderate" (between the integer band 5 and 15).
 TIERS = [
-    (0, 5, "low", 0.9),
-    (6, 15, "moderate", 1.0),
-    (16, 30, "high", 1.3),
-    (31, 50, "dangerous", 1.7),
-    (51, math.inf, "critical", 2.2),
+    (5, "low", 0.9),
+    (15, "moderate", 1.0),
+    (30, "high", 1.3),
+    (50, "dangerous", 1.7),
+    (math.inf, "critical", 2.2),
 ]
 
 # Maps backend tier → UI 3-category enum the frontend already renders.
@@ -102,11 +104,14 @@ def accident_factor(count: int) -> float:
 
 
 def _tier_entry(score: float) -> tuple[str, float]:
-    """Return (tier_name, premium_coefficient) for score; always "critical"/2.2 if out of range."""
-    for lo, hi, tier, coef in TIERS:
-        if lo <= score <= hi:
+    """Return (tier_name, premium_coefficient) for score. No gaps — every
+    score lands in exactly one tier."""
+    if score < 0:
+        score = 0
+    for upper, tier, coef in TIERS:
+        if score <= upper:
             return tier, coef
-    return "critical", 2.2
+    return "critical", 2.2  # unreachable: math.inf catches all
 
 
 def risk_tier_for(score: float) -> str:

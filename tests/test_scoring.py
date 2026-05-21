@@ -105,12 +105,17 @@ def test_driver_b_negative_critical_risk_653520_kzt():
     [
         (0, "low"),
         (5, "low"),
+        (5.001, "moderate"),  # fractional just above the boundary
+        (5.5, "moderate"),    # regression: previously fell through to "critical"
         (6, "moderate"),
         (15, "moderate"),
+        (15.5, "high"),       # regression
         (16, "high"),
         (30, "high"),
+        (30.5, "dangerous"),  # regression
         (31, "dangerous"),
         (50, "dangerous"),
+        (50.5, "critical"),
         (51, "critical"),
         (1000, "critical"),
     ],
