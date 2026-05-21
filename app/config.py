@@ -34,6 +34,20 @@ class Settings(BaseSettings):
             return [s.strip() for s in v.split(",") if s.strip()]
         return v
 
+    @field_validator("database_url", mode="before")
+    @classmethod
+    def normalize_database_url(cls, v: str) -> str:
+        """Railway / Heroku set DATABASE_URL with the legacy `postgres://` or
+        the sync `postgresql://` prefix. We use the async driver everywhere,
+        so rewrite to `postgresql+asyncpg://` automatically."""
+        if not isinstance(v, str):
+            return v
+        if v.startswith("postgres://"):
+            return "postgresql+asyncpg://" + v[len("postgres://") :]
+        if v.startswith("postgresql://"):
+            return "postgresql+asyncpg://" + v[len("postgresql://") :]
+        return v
+
 
 def get_settings() -> Settings:
     return Settings()  # type: ignore[call-arg]
