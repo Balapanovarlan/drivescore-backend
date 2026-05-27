@@ -11,10 +11,11 @@ class Settings(BaseSettings):
     jwt_expires_days: int = 7
     cors_origins: list[str] | str = Field(default_factory=list)
 
-    # Formula constants from формула.docx
-    base_premium_kzt: int = 200_000
-    alpha: float = 0.02
-    k_decay: float = 0.2
+    # Formula constants from другаяформула.docx (composite UBI/PHYD model)
+    base_premium_kzt: int = 22_000
+    k_scale: float = 0.07
+    k_decay: float = 0.5
+    accident_penalty: int = 10
 
     # Seed
     seed_drivers: int = 100

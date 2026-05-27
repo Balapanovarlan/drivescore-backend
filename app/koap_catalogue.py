@@ -1,5 +1,7 @@
 """
-Static catalogue of КоАП articles from формула.docx §3.
+Static catalogue of КоАП articles. Weights reflect ranges from
+другаяформула.docx (DUI 25–35, Red light 8–12, Speeding 2–20),
+chosen at the values used in the doc's worked examples.
 Used by seed and as the reference returned by GET /koap-articles.
 """
 
@@ -59,10 +61,10 @@ KOAP_ARTICLES: list[KoapArticleDef] = [
     {
         "code": "Art.592 Part 3-1",
         "name": "Speeding over 60 km/h",
-        "weight": 10,
+        "weight": 12,
         "factor_group": "speeding",
     },
-    {"code": "Art.599", "name": "Running red light", "weight": 8, "factor_group": "redLight"},
+    {"code": "Art.599", "name": "Running red light", "weight": 10, "factor_group": "redLight"},
     {
         "code": "Art.591",
         "name": "Phone usage while driving",

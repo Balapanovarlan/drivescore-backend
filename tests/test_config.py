@@ -15,8 +15,9 @@ def test_settings_defaults_for_constants(monkeypatch):
     monkeypatch.setenv("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
     monkeypatch.setenv("JWT_SECRET", "x")
     s = Settings()
-    assert s.base_premium_kzt == 200_000
-    assert s.alpha == 0.02
-    assert s.k_decay == 0.2
+    assert s.base_premium_kzt == 22_000
+    assert s.k_scale == 0.07
+    assert s.k_decay == 0.5
+    assert s.accident_penalty == 10
     assert s.seed_drivers == 100
     assert s.jwt_expires_days == 7

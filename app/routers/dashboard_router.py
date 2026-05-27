@@ -8,7 +8,6 @@ from app.auth import get_current_user
 from app.database import get_db
 from app.models import User
 from app.schemas import DashboardSummary, HistogramBucket
-from app.scoring import TIER_TO_UI_CATEGORY
 
 router = APIRouter(prefix="/api/dashboard", tags=["dashboard"])
 
@@ -29,7 +28,10 @@ async def summary(
     weighted_premium = 0.0
 
     for s in snaps:
-        ui_cat = TIER_TO_UI_CATEGORY[s.risk_tier]
+        # risk_tier is the 3-cat UI category itself (low/medium/high).
+        # Legacy 5-tier values fall back to "medium" so a stale snapshot
+        # doesn't blow up the dashboard before the next recompute.
+        ui_cat = s.risk_tier if s.risk_tier in risk_dist else "medium"
         risk_dist[ui_cat] += 1
         score_sum += s.safety_score
         idx = min(9, s.safety_score // 10)
